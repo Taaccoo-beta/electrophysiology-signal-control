@@ -282,8 +282,8 @@ namespace TDetection
                         lblShowSignText = "NULL";
                         isMyTimerFinished = true;
                         board.VOutput(0, 0);
-                        
 
+                        t.Abort();
 
                         
 
@@ -369,6 +369,7 @@ namespace TDetection
                 isMyTimerFinished = false;
 
                 t = new Thread(myTimer);
+                t.IsBackground = true;
                 t.Start();
                 timer1.Start();
             }
@@ -452,6 +453,7 @@ namespace TDetection
 
                 isMyTimerFinished = false;
                 t = new Thread(myTimer);
+                t.IsBackground = true;
                 t.Start();
                 timer1.Start();
             }
@@ -501,6 +503,7 @@ namespace TDetection
                 isMyTimerFinished = false;
 
                 t = new Thread(myTimer);
+                t.IsBackground = true;
                 t.Start();
                 timer1.Start();
             }
@@ -550,6 +553,7 @@ namespace TDetection
                 isMyTimerFinished = false;
 
                 t = new Thread(myTimer);
+                t.IsBackground = true;
                 t.Start();
                 timer1.Start();
             }

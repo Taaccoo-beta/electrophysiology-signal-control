@@ -49,3 +49,12 @@ C:\Users\HuPengbo\Desktop\Output-withSign\TDetection\obj\Debug\TDetection.Proper
 C:\Users\HuPengbo\Desktop\Output-withSign\TDetection\obj\Debug\TDetection.csproj.GenerateResource.Cache
 C:\Users\HuPengbo\Desktop\Output-withSign\TDetection\obj\Debug\TDetection.exe
 C:\Users\HuPengbo\Desktop\Output-withSign\TDetection\obj\Debug\TDetection.pdb
+H:\github\electrophysiology-signal-control\TDetection\bin\Debug\TDetection.exe.config
+H:\github\electrophysiology-signal-control\TDetection\bin\Debug\TDetection.exe
+H:\github\electrophysiology-signal-control\TDetection\bin\Debug\TDetection.pdb
+H:\github\electrophysiology-signal-control\TDetection\obj\Debug\TDetection.csprojResolveAssemblyReference.cache
+H:\github\electrophysiology-signal-control\TDetection\obj\Debug\TDetection.Form1.resources
+H:\github\electrophysiology-signal-control\TDetection\obj\Debug\TDetection.Properties.Resources.resources
+H:\github\electrophysiology-signal-control\TDetection\obj\Debug\TDetection.csproj.GenerateResource.Cache
+H:\github\electrophysiology-signal-control\TDetection\obj\Debug\TDetection.exe
+H:\github\electrophysiology-signal-control\TDetection\obj\Debug\TDetection.pdb
