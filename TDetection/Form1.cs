@@ -9,10 +9,24 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using XControl;
 using SerieslizeControlModule;
+using System.Runtime.InteropServices;
+using System.Threading;
+
 namespace TDetection
 {
     public partial class Form1 : Form
     {
+
+        [DllImport("winmm")]
+        static extern uint timeGetTime();
+
+        [DllImport("winmm")]
+        static extern void timeBeginPeriod(int t);
+        [DllImport("winmm")]
+        static extern void timeEndPeriod(int t);
+
+
+
         public Form1()
         {
             InitializeComponent();
@@ -25,9 +39,14 @@ namespace TDetection
         private int intervalTime;
         private int circle;
         private double voltage;
+
+
+
         private bool firstJump = true;
         private int count;
         private int circleCount;
+
+
         private bool isStart_1 = true;
         private bool isStart_2 = true;
         private bool isStart_3 = true;
@@ -48,7 +67,10 @@ namespace TDetection
         private int signCount = 0;
         private int timer2SingCount = 0;
 
-     
+        private Thread t;
+
+
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -143,98 +165,157 @@ namespace TDetection
 
 
         }
+        //private int lastTime;
+        //private int intervalTime;
+        //private int circle;
+        //private double voltage;
+
+
+
+        private string lblShowSignText="NULL";
+        private string lblShowValueText = "NULL";
+        private string lblShowCountText = "NULL";
+        private string btnStart_1Text = "Start";
+        private string btnStart_2Text = "Start";
+        private string btnStart_3Text = "Start";
+        private string btnStart_4Text = "Start";
+        private bool isMyTimerFinished = false;
+
+        private void myTimer()
+        {
+            timeBeginPeriod(1);
+            uint start = timeGetTime();
+            uint newStart;
+            bool ifWorkFinished = false;
+            
+            while (true)
+            {
+               
+                if (!ifWorkFinished)
+                {
+
+                    if (circleCount < circle)
+                    {
+                        if (runLastTime)
+                        {
+
+                            if (signCount < 2)
+                            {
+                                board.DigitOutput(0, MccDaq.DigitalLogicState.High);
+                                lblShowSignText = "High";
+                            }
+                            else
+                            {
+                                board.DigitOutput(0, MccDaq.DigitalLogicState.Low);
+                                lblShowSignText = "Low";
+                            }
+                            
+                            if (count < lastTime)
+                            {
+                                board.VOutput(0, Convert.ToSingle(voltage));
+                                lblShowValueText = voltage.ToString();
+                                lblShowCountText = "LastPhase";
+                            }
+                            else
+                            {
+                                count = 0;
+                                runIntervalTime = true;
+                                runLastTime = false;
+                                signCount = 0;
+                                isLastTimeSingCount = false;
+                                isIntervalSingCount = true;
+                            }
+
+
+                            if (isLastTimeSingCount)
+                            {
+                                signCount++;
+                            }
+
+                        }
+
+
+
+                        if (runIntervalTime)
+                        {
+                            
+                            if (count < intervalTime)
+                            {
+                                board.VOutput(0, 0);
+                                lblShowValueText = "0";
+                                lblShowCountText = "IntervalPhase";
+                            }
+                            else
+                            {
+                                count = 0;
+                                runLastTime = true;
+                                runIntervalTime = false;
+                                signCount = 0;
+                                circleCount++;
+                                isLastTimeSingCount = true;
+                                isIntervalSingCount = false;
+                            }
+                            
+
+                        }
+
+
+
+
+                        count++;
+
+                    }
+                    else
+                    {
+                        isStart_1 = true;
+                        isStart_2 = true;
+                        isStart_3 = true;
+                        isStart_4 = true;
+
+                        btnStart_1Text = "Start";
+                        btnStart_2Text = "Start";
+                        btnStart_3Text = "Start";
+                        btnStart_4Text = "Start";
+
+                        lblShowValueText = "NULL";
+                        lblShowCountText = "NULL";
+                        lblShowSignText = "NULL";
+                        isMyTimerFinished = true;
+                        board.VOutput(0, 0);
+                        
+
+
+                        
+
+                    }
+                    
+                    ifWorkFinished = true;
+                }
+
+                newStart = timeGetTime();
+
+
+                if (newStart - start >= 100)
+                {
+                    ifWorkFinished = false;
+                    start = newStart;
+                   
+                }
+
+            }
+        }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-
-            //  board.VOutput(0, Convert.ToSingle(voltage));
-            if (circleCount < circle)
+            if (isMyTimerFinished == false)
             {
-                if (runLastTime)
-                {
-
-                    if (signCount < 2)
-                    {
-                        board.DigitOutput(0, MccDaq.DigitalLogicState.High);
-                        this.lblShowSign.Text = "High";
-                    }
-                    else
-                    {
-                        board.DigitOutput(0, MccDaq.DigitalLogicState.Low);
-                        this.lblShowSign.Text = "Low";
-                    }
-                    
-
-
-
-
-
-                    if (count < lastTime)
-                    {
-                        board.VOutput(0, Convert.ToSingle(voltage));
-                        this.lblShowValue.Text = voltage.ToString();
-                        this.lblShowCount.Text = "LastPhase";
-                    }
-                    else
-                    {
-                        count = 0;
-                        runIntervalTime = true;
-                        runLastTime = false;
-                        signCount = 0;
-                        isLastTimeSingCount = false;
-                        isIntervalSingCount = true;
-                    }
-
-
-                    if (isLastTimeSingCount)
-                    {
-                        signCount++;
-                    }
-
-                }
-
-                if(runIntervalTime)
-                {
-
-                    if (signCount < 4)
-                    {
-                        board.DigitOutput(0, MccDaq.DigitalLogicState.High);
-                        this.lblShowSign.Text = "High";
-                    }
-                    else
-                    {
-                        board.DigitOutput(0, MccDaq.DigitalLogicState.Low);
-                        this.lblShowSign.Text = "Low";
-                    }
-
-
-                    if (count < intervalTime)
-                    {
-                        board.VOutput(0, 0);
-                        this.lblShowValue.Text = "0";
-                        this.lblShowCount.Text = "IntervalPhase";
-                    }
-                    else
-                    {
-                        count = 0;
-                        runLastTime = true;
-                        runIntervalTime = false;
-                        signCount = 0;
-                        circleCount++;
-                        isLastTimeSingCount = true;
-                        isIntervalSingCount = false;
-                    }
-                    if (isIntervalSingCount)
-                    {
-                        signCount++;
-                    }
-                    
-                }
-
-              
+                this.lblShowCount.Text = lblShowCountText;
+                this.lblShowSign.Text = lblShowSignText;
+                this.lblShowValue.Text = lblShowValueText;
             }
             else
             {
+                timer1.Stop();
                 isStart_1 = true;
                 isStart_2 = true;
                 isStart_3 = true;
@@ -245,28 +326,23 @@ namespace TDetection
                 btnStart_3.Text = "Start";
                 btnStart_4.Text = "Start";
 
-                this.lblShowValue.Text = "NULL";
-                this.lblShowCount.Text = "NULL";
-                this.lblShowSign.Text = "NULL";
-
                 board.VOutput(0, 0);
+
                 this.btnStart_1.Enabled = true;
                 this.btnStart_2.Enabled = true;
                 this.btnStart_3.Enabled = true;
                 this.btnStart_4.Enabled = true;
-
-                
-                timer1.Stop();
-
+                this.lblShowCount.Text = "NULL";
+                this.lblShowValue.Text = "NULL";
+                this.lblShowSign.Text = "NULL";
             }
-            count++;
-           
+            
             
         }
 
         private void btnStart_1_Click(object sender, EventArgs e)
         {
-            if(isStart_1 == true)
+            if (isStart_1 == true)
             {
                 isStart_1 = false;
                 btnStart_1.Text = "Stop";
@@ -290,6 +366,10 @@ namespace TDetection
                 circleCount = 0;
                 signCount = 0;
 
+                isMyTimerFinished = false;
+
+                t = new Thread(myTimer);
+                t.Start();
                 timer1.Start();
             }
             else
@@ -303,20 +383,13 @@ namespace TDetection
                 this.lblShowCount.Text = "NULL";
                 this.lblShowValue.Text = "NULL";
                 this.lblShowSign.Text = "NULL";
-
-               
-
-
-                if (runLastTime)
-                {
-                    timer2SingCount = 0;
-                    this.timer2.Start();
-                }
                 timer1.Stop();
-
+                t.Abort();
+                
             }
-            
-            
+
+
+
         }
 
         private void btnSet_Click(object sender, EventArgs e)
@@ -376,6 +449,10 @@ namespace TDetection
                 circleCount = 0;
                 count = 0;
                 signCount = 0;
+
+                isMyTimerFinished = false;
+                t = new Thread(myTimer);
+                t.Start();
                 timer1.Start();
             }
             else
@@ -390,14 +467,8 @@ namespace TDetection
                 this.btnStart_1.Enabled = true;
                 this.btnStart_3.Enabled = true;
                 this.btnStart_4.Enabled = true;
-
                 timer1.Stop();
-
-                if (runLastTime)
-                {
-                    timer2SingCount = 0;
-                    this.timer2.Start();
-                }
+                t.Abort();
             }
         }
 
@@ -426,6 +497,11 @@ namespace TDetection
                 circleCount = 0;
                 count = 0;
                 signCount = 0;
+
+                isMyTimerFinished = false;
+
+                t = new Thread(myTimer);
+                t.Start();
                 timer1.Start();
             }
             else
@@ -439,14 +515,8 @@ namespace TDetection
                 this.lblShowCount.Text = "NULL";
                 this.lblShowValue.Text = "NULL";
                 this.lblShowSign.Text = "NULL";
-
                 timer1.Stop();
-
-                if (runLastTime)
-                {
-                    timer2SingCount = 0;
-                    this.timer2.Start();
-                }
+                t.Abort();
 
             }
         }
@@ -476,6 +546,11 @@ namespace TDetection
                 circleCount = 0;
                 count = 0;
                 signCount = 0;
+
+                isMyTimerFinished = false;
+
+                t = new Thread(myTimer);
+                t.Start();
                 timer1.Start();
             }
             else
@@ -489,32 +564,15 @@ namespace TDetection
                 this.lblShowCount.Text = "NULL";
                 this.lblShowValue.Text = "NULL";
                 this.lblShowSign.Text = "NULL";
-
                 timer1.Stop();
-
-                if (runLastTime)
-                {
-                    timer2SingCount = 0;
-                    this.timer2.Start();
-                }
+                t.Abort();
 
             }
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            if (timer2SingCount < 4)
-            {
-                board.DigitOutput(0, MccDaq.DigitalLogicState.High);
-                this.lblShowSign.Text = "High";
-            }
-            else
-            {
-                board.DigitOutput(0, MccDaq.DigitalLogicState.Low);
-                this.lblShowSign.Text = "NULL";
-                timer2.Stop();
-            }
-            timer2SingCount++;
+            
         }
     }
 }
